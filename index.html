@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>影像创作者 | 电影感作品集</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 思源黑体, sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        :root {
+            --film-dark: #0b0d10;
+            --film-mid: #1a1d22;
+            --film-light: #7a8692;
+            --film-warm: #c4b09e;
+            --text-white: #f5f5f5;
+            --text-gray: #a9b3bd;
+            --glass: rgba(11,13,16,0.7);
+            --border-glass: rgba(196,176,158,0.25);
+        }
+
+        body {
+            background-color: var(--film-dark);
+            color: var(--text-gray);
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        /* 磨砂导航 */
+        nav {
+            position: fixed;
+            width: 100%;
+            padding: 1.5rem 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 9999;
+            transition: all 0.6s ease;
+            background: transparent;
+        }
+        nav.active {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 4px 40px rgba(0,0,0,0.4);
+            padding: 1.2rem 8%;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 300;
+            letter-spacing: 5px;
+            color: var(--text-white);
+            transition: all 0.4s;
+        }
+        .nav-menu a {
+            text-decoration: none;
+            color: var(--text-gray);
+            margin-left: 2.8rem;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            transition: color 0.4s ease;
+        }
+        .nav-menu a:hover {
+            color: var(--film-warm);
+        }
+
+        /* 全屏高光Hero首页 */
+        .hero {
+            height: 100vh;
+            width: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            overflow: hidden;
+            background: linear-gradient(rgba(11,13,16,0.5), rgba(11,13,16,0.75)),
+            url('https://via.placeholder.com/1920x1080') center/cover no-repeat;
+            background-attachment: fixed;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            box-shadow: inset 0 0 180px rgba(0,0,0.9);
+            pointer-events: none;
+        }
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(196,176,158,0.08) 0%, transparent 60%);
+            animation: lightSlow 20s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes lightSlow {
+            0% { transform: translate(0,0); }
+            50% { transform: translate(3%,3%); }
+            100% { transform: translate(0,0); }
+        }
+
+        .hero-inner {
+            position: relative;
+            z-index: 2;
+            max-width: 700px;
+            padding: 0 5%;
+        }
+
+        .hero-avatar {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(196,176,158,0.4);
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(40px) scale(0.95);
+            animation: heroFade 1.4s ease forwards 0.2s;
+        }
+
+        .hero-title {
+            font-size: 3.2rem;
+            font-weight: 300;
+            letter-spacing: 8px;
+            color: var(--text-white);
+            margin-bottom: 1.2rem;
+            opacity: 0;
+            transform: translateY(40px);
+            animation: heroFade 1.4s ease forwards 0.4s;
+        }
+
+        .hero-sub {
+            font-size: 1.2rem;
+            letter-spacing: 3px;
+            color: var(--text-gray);
+            margin-bottom: 2.5rem;
+            opacity: 0;
+            transform: translateY(40px);
+            animation: heroFade 1.4s ease forwards 0.6s;
+        }
+
+        .hero-contact {
+            margin-bottom: 2.5rem;
+            opacity: 0;
+            transform: translateY(40px);
+            animation: heroFade 1.4s ease forwards 0.8s;
+        }
+        .hero-contact p {
+            margin-bottom: 0.7rem;
+            font-size: 1rem;
+        }
+
+        .hero-social {
+            display: flex;
+            justify-content: center;
+            gap: 1.3rem;
+            flex-wrap: wrap;
+            opacity: 0;
+            transform: translateY(40px);
+            animation: heroFade 1.4s ease forwards 1s;
+        }
+        .hero-social a {
+            padding: 0.75rem 1.8rem;
+            border: 1px solid rgba(196,176,158,0.4);
+            color: var(--text-gray);
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            transition: all 0.5s ease;
+        }
+        .hero-social a:hover {
+            background: rgba(196,176,158,0.15);
+            border-color: var(--film-warm);
+            color: var(--film-warm);
+            transform: translateY(-3px);
+        }
+
+        .scroll-down {
+            position: absolute;
+            bottom: 3rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            animation: bounce 2.5s infinite;
+        }
+        @keyframes heroFade {
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        @keyframes bounce {
+            0%,100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(10px); }
+        }
+
+        /* 通用区块 */
+        .section {
+            padding: 8rem 5%;
+            background: var(--film-dark);
+        }
+        .section-light {
+            background: var(--film-mid);
+        }
+        .section-head {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        .section-head h2 {
+            font-size: 2.3rem;
+            font-weight: 300;
+            letter-spacing: 5px;
+            color: var(--text-white);
+            margin-bottom: 1rem;
+        }
+        .section-head p {
+            color: var(--film-light);
+            letter-spacing: 1px;
+        }
+
+        /* 作品分组小标题 */
+        .work-group-title {
+            text-align: center;
+            font-size: 1.4rem;
+            color: var(--film-warm);
+            letter-spacing: 3px;
+            margin: 4rem 0 2rem;
+        }
+
+        /* 可滚动胶片容器 - 仅工作视频用 */
+        .film-strip {
+            width: 100%;
+            overflow: hidden;
+            padding: 1rem 0;
+        }
+        .film-scroll {
+            display: flex;
+            gap: 1.5rem;
+            padding: 2rem 1rem;
+        }
+        .film-strip:hover .film-scroll {
+            animation-play-state: paused;
+        }
+        .film-scroll-work {
+            animation: filmMoveWork 80s linear infinite;
+        }
+        @keyframes filmMoveWork {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* 不滚动 静态平铺容器 - 个人视频用 */
+        .film-static-wrap {
+            width: 100%;
+            padding: 2rem 1rem;
+        }
+        .film-static-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .film-frame {
+            flex: 0 0 380px;
+            background: #000;
+            padding: 1rem;
+            border-radius: 6px;
+            position: relative;
+            background-image: radial-gradient(circle, transparent 92%, #222 92%);
+            background-size: 20px 20px;
+            transition: transform 0.4s ease;
+        }
+        .film-frame:hover {
+            transform: translateY(-12px) scale(1.03);
+        }
+
+        .film-media {
+            width: 100%;
+            height: 260px;
+            background: #000;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .film-media iframe,
+        .film-media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border: none;
+        }
+        .film-desc {
+            padding-top: 1.2rem;
+            text-align: center;
+        }
+        .film-desc h3 {
+            color: var(--text-white);
+            font-size: 1.1rem;
+            margin-bottom: 0.4rem;
+            font-weight: 400;
+        }
+        .film-desc p {
+            color: var(--film-light);
+            font-size: 0.85rem;
+        }
+
+        /* 图片作品 平面网格 */
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            padding: 2rem 1rem;
+        }
+        .photo-card {
+            background: var(--film-mid);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-glass);
+            transition: transform 0.4s ease;
+        }
+        .photo-card:hover {
+            transform: translateY(-8px);
+        }
+        .photo-card-img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+        }
+        .photo-card-desc {
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .photo-card-desc h3 {
+            color: var(--text-white);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        .photo-card-desc p {
+            color: var(--film-light);
+            font-size: 0.9rem;
+        }
+
+        /* 时间线：左侧竖线 + 每条独立磨砂方框 */
+        .timeline {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            padding-left: 2.5rem;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border-glass);
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2.5rem;
+            padding: 2rem;
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            background: rgba(196,176,158,0.05);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+        .timeline-item.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.5rem;
+            top: 1.8rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--film-warm);
+            transform: translateX(-5px);
+        }
+        .time-year {
+            color: var(--film-warm);
+            font-size: 1rem;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+        .time-title {
+            color: var(--text-white);
+            font-size: 1.2rem;
+            margin-bottom: 0.6rem;
+        }
+        .time-text {
+            color: var(--film-light);
+            font-size: 0.95rem;
+        }
+
+        /* 关于我 去掉图片，只保留文字+技能 */
+        .about-content {
+            max-width: 850px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .about-content p {
+            color: var(--film-light);
+            font-size: 1rem;
+            line-height: 2;
+            margin-bottom: 3rem;
+        }
+
+        /* 核心技能区块 */
+        .skill-section {
+            max-width: 850px;
+            margin: 5rem auto 0;
+            padding-top: 3rem;
+            border-top: 1px solid var(--border-glass);
+        }
+        .skill-section h4 {
+            text-align: center;
+            font-size: 1.5rem;
+            color: var(--film-warm);
+            letter-spacing: 3px;
+            margin-bottom: 2rem;
+        }
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+        .skill-tags span {
+            padding: 0.8rem 1.5rem;
+            border: 1px solid var(--border-glass);
+            border-radius: 30px;
+            color: var(--film-light);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            cursor: default;
+            background: rgba(196,176,158,0.05);
+        }
+        .skill-tags span:hover {
+            border-color: var(--film-warm);
+            color: var(--film-warm);
+        }
+
+        footer {
+            text-align: center;
+            padding: 3rem;
+            color: var(--film-light);
+            font-size: 0.9rem;
+            background: var(--film-dark);
+            border-top: 1px solid rgba(196,176,158,0.15);
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .nav-menu { display: none; }
+            .hero-title { font-size: 2.2rem; }
+            .hero-avatar { width: 120px; height: 120px; }
+            .film-frame { flex: 0 0 280px; }
+            .film-media { height: 200px; }
+            .section { padding: 6rem 5%; }
+            .timeline { padding-left: 2rem; }
+        }
+
+
+
+/* ======================
+   弹出窗口样式（新增）
+====================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 9999;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  cursor: zoom-out;
+}
+
+.modal-content {
+  width: 90%;
+  max-width: 1200px;
+  height: 85vh;
+  background: #000;
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 50px rgba(0,0,0,0.7);
+}
+
+.modal-content iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* 让原来的小预览框变成可点击、手型 */
+.portfolio-item iframe,
+.work-item iframe,
+.project-item iframe {
+  cursor: zoom-in !important;
+  pointer-events: none;
+}
+
+
+
+
+    </style>
+</head>
+<body>
+    <!-- 磨砂导航 -->
+    <nav id="navbar">
+        <div class="logo">作品集</div>
+        <div class="nav-menu">
+            <a href="#home">首页</a>
+            <a href="#works">作品展示</a>
+            <a href="#experience">工作经历</a>
+            <a href="#about">关于我</a>
+        </div>
+    </nav>
+
+    <!-- 首页Hero -->
+    <section class="hero" id="home">
+        <div class="hero-inner">
+            <img class="hero-avatar" src="head.jpg" alt="个人头像">
+            <h1 class="hero-title">叶剑鸣</h1>
+            <p class="hero-sub">编导</p>
+
+            <div class="hero-contact">
+                <p>📩 邮箱：1175783018@qq.com</p>
+                <p>📱 电话：17828437750</p>
+                </p>
+            </div>
+
+        </div>
+        <div class="scroll-down">向下滚动 进入作品展示</div>
+    </section>
+
+    <!-- 作品区域 -->
+    <section class="section" id="works">
+        <div class="section-head">
+            <h2>作品展示</h2>
+            <p>工作视频 · 个人作品 · 平面作品 分区展示</p>
+        </div>
+
+        <!-- 第一排：工作项目视频 6个 + 保留滚动 -->
+        <h3 class="work-group-title">▎ 工作项目 视频作品</h3>
+
+<p>双击视频可弹出播放</p>
+
+        <div class="film-strip">
+            <div class="film-scroll film-scroll-work">
+                <div class="film-frame">
+                    <div class="film-media">
+                        <iframe src="https://www.bilibili.com/video/BV1SNahzAE1P/?spm_id_from=333.1387.upload.video_card.click&vd_source=169fffac7a21fb42ed8d80cd0925b5cf" allowfullscreen></iframe>
+                    </div>
+                    <div class="film-desc">
+                        <h3>自主频道长视频 01</h3>
+                        <p>编导策划 / 脚本撰写 / 拍摄后期统筹</p>
+                    </div>
+                </div>
+                <div class="film-frame">
+                    <div class="film-media">
+                        <iframe src="https://www.bilibili.com/video/BV1X6SgBzEaU/?spm_id_from=333.1387.upload.video_card.click" allowfullscreen></iframe>
+                    </div>
+                    <div class="film-desc">
+                        <h3>自主频道长视频 02</h3>
+                        <p>编导策划 / 脚本撰写 / 拍摄后期统筹</p>
+                    </div>
+                </div>
+                <div class="film-frame">
+                    <div class="film-media">
+                        <iframe src="https://www.bilibili.com/video/BV1FiBvBFEX5/?spm_id_from=333.1387.upload.video_card.click" allowfullscreen></iframe>
+                    </div>
+                    <div class="film-desc">
+                        <h3>自主频道长视频 03</h3>
+                        <p>编导策划 / 脚本撰写 / 拍摄后期统筹</p>
+                    </div>
+                </div>
+                <div class="film-frame">
+                    <div class="film-media">
+                        <iframe src="https://www.bilibili.com/video/BV1MjqbBREXd/?spm_id_from=333.1387.upload.video_card.click&vd_source=169fffac7a21fb42ed8d80cd0925b5cf" allowfullscreen></iframe>
+                    </div>
+                    <div class="film-desc">
+                        <h3>品牌方商配短视频 01</h3>
+                        <p> 脚本撰写 / 拍摄后期统筹 / 包装</p>
+                    </div>
+                </div>
+                <div class="film-frame">
+                    <div class="film-media">
+                        <iframe src="https://www.bilibili.com/video/BV1HrkFBCEsJ/?spm_id_from=333.1387.upload.video_card.click&vd_source=169fffac7a21fb42ed8d80cd0925b5cf" allowfullscreen></iframe>
+                    </div>
+                    <div class="film-desc">
+                        <h3>品牌方商配短视频 02</h3>
+                        <p> 脚本撰写 / 拍摄后期统筹 / 包装</p>
+                    </div>
+                </div>
+                <div class="film-frame">
+                    <div class="film-media">
+                        <iframe src="https://www.bilibili.com/video/BV1HrkFBCEsJ/?spm_id_from=333.1387.upload.video_card.click&vd_source=169fffac7a21fb42ed8d80cd0925b5cf" allowfullscreen></iframe>
+                    </div>
+                    <div class="film-desc">
+                        <h3>品牌方商配短视频 03</h3>
+                        <p> 脚本撰写 / 拍摄后期统筹 / 包装</p>
+                    </div>
+                </div>
+                <!-- 复制一遍实现无缝滚动 -->
+                <div class="film-frame">
+                    <div class="film-media">
+                        <iframe src="" allowfullscreen></iframe>
+                    </div>
+                    <div class="film-desc">
+                        <h3>商业栏目短片 01</h3>
+                        <p>编导策划 / 脚本撰写 / 后期出品</p>
+                    </div>
+                </div>
+                <div class="film-frame">
+                    <div class="film-media">
+                        <iframe src="" allowfullscreen></iframe>
+                    </div>
+                    <div class="film-desc">
+                        <h3>商业栏目短片 02</h3>
+                        <p>编导策划 / 脚本撰写 / 后期出品</p>
+                    </div>
+                </div>
+                <div class="film-frame">
+                    <div class="film-media">
+                        <iframe src="" allowfullscreen></iframe>
+                    </div>
+                    <div class="film-desc">
+                        <h3>商业栏目短片 03</h3>
+                        <p>编导策划 / 脚本撰写 / 后期出品</p>
+                    </div>
+                </div>
+                <div class="film-frame">
+                    <div class="film-media">
+                        <iframe src="" allowfullscreen></iframe>
+                    </div>
+                    <div class="film-desc">
+                        <h3>品牌宣传视频 04</h3>
+                        <p>全流程策划拍摄与剪辑包装</p>
+                    </div>
+                </div>
+                <div class="film-frame">
+                    <div class="film-media">
+                        <iframe src="" allowfullscreen></iframe>
+                    </div>
+                    <div class="film-desc">
+                        <h3>品牌宣传视频 05</h3>
+                        <p>全流程策划拍摄与剪辑包装</p>
+                    </div>
+                </div>
+                <div class="film-frame">
+                    <div class="film-media">
+                        <iframe src="" allowfullscreen></iframe>
+                    </div>
+                    <div class="film-desc">
+                        <h3>品牌宣传视频 06</h3>
+                        <p>全流程策划拍摄与剪辑包装</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第二排：个人创作视频 3个 取消滚动 静态平铺 -->
+        <h3 class="work-group-title">▎ 个人创作 旅拍长视频</h3>
+
+<p>双击视频可弹出播放</p>
+
+        <div class="film-static-wrap">
+            <div class="film-static-list">
+                <div class="film-frame">
+                    <div class="film-media">
+                        <iframe src="https://www.bilibili.com/video/BV19vXKBMEHg/?spm_id_from=333.1387.homepage.video_card.click&vd_source=169fffac7a21fb42ed8d80cd0925b5cf" allowfullscreen></iframe>
+                    </div>
+                    <div class="film-desc">
+                        <h3>一个人坐慢火车，从乐山到凉山，深入村镇的朴素旅行</h3>
+                        <p>全流程独立创作</p>
+                    </div>
+                </div>
+                <div class="film-frame">
+                    <div class="film-media">
+                        <iframe src="https://www.bilibili.com/video/BV17wDsBdE6Y/?spm_id_from=333.1387.homepage.video_card.click&vd_source=169fffac7a21fb42ed8d80cd0925b5cf" allowfullscreen></iframe>
+                    </div>
+                    <div class="film-desc">
+                        <h3>南方鹤岗？一个人去云南小城旅行，和想象中的很不一样</h3>
+                        <p>全流程独立创作</p>
+                    </div>
+                </div>
+                <div class="film-frame">
+                    <div class="film-media">
+                        <iframe src="https://www.bilibili.com/video/BV1cWoGByETe/?spm_id_from=333.1387.homepage.video_card.click&vd_source=169fffac7a21fb42ed8d80cd0925b5cf" allowfullscreen></iframe>
+                    </div>
+                    <div class="film-desc">
+                        <h3>自驾青海环湖旅行，看看西北的山川湖海</h3>
+                        <p>全流程独立创作</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第三排：图片影像 平面网格不变 -->
+        <h3 class="work-group-title">▎ 平面作品</h3>
+
+
+
+       <!-- 平面作品 - 摄影 + 设计（放大版） -->
+<div class="portfolio-section" style="padding: 60px 0;">
+   
+  <div style="
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+  ">
+    
+    <!-- 摄影作品（放大） -->
+    <div style="
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    ">
+      <h3 style="font-size: 24px; margin-bottom: 20px; text-align:center;">摄影作品</h3>
+      <div style="
+        width: 100%;
+        height: 500px;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #fff;
+      ">
+        <iframe 
+          src="P1.png"
+          style="width:100%;height:100%;border:none;"
+          allowfullscreen>
+        </iframe>
+      </div>
+    </div>
+
+    <!-- 设计作品（放大） -->
+    <div style="
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    ">
+      <h3 style="font-size: 24px; margin-bottom: 20px; text-align:center;">设计作品</h3>
+      <div style="
+        width: 100%;
+        height: 500px;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #fff;
+      ">
+        <iframe 
+          src="P2.png"
+          style="width:100%;height:100%;border:none;"
+          allowfullscreen>
+        </iframe>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+
+
+
+
+    </section>
+
+    <!-- 经历轨迹：竖时间线 + 每条独立磨砂方框 -->
+    <section class="section section-light" id="experience">
+        <div class="section-head">
+            <h2>经历轨迹</h2>
+            <p>成长历程 · 工作经历</p>
+        </div>
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="time-year">2025.07 — 2026.04</div>
+                <div class="time-title">北京盛拓优讯信息技术有限公司（base上海） / 编导 </div>
+                <div class="time-text">负责公司自主平台“爱极客视频”的及品牌账号“IT168”的在B站、小红书、抖音、视频号、公众号上的编导工作。独立完成选题、内容策划、文案脚本、统筹拍摄剪辑等工作。</div>
+            </div>
+            <div class="timeline-item">
+                <div class="time-year">2024.03 — 2025.07</div>
+                <div class="time-title">上海渊学通教育科技有限公司 / 编导+运营 </div>
+                <div class="time-text">主导账号内容策划与编导工作，搭建账号内容体系，通过内容创作+直播，实现引流获客、用户增长及私域转化的效果。提
+升品牌影响力与商业价值，实现业绩突破。</div>
+            </div>
+            <div class="timeline-item">
+                <div class="time-year">2023.02 — 2024.02</div>
+                <div class="time-title">成都环球国际旅行社有限公司 / 运营+内容编导 </div>
+                <div class="time-text">
+负责公司相关账号从0到1的策划，账号内容策划、选题、拍摄-后期制作和在多平台的运营。</div>
+            </div>
+            <div class="timeline-item">
+                <div class="time-year">2022.06-2022.12</div>
+                <div class="time-title">京东 / 品牌部-视频实习生</div>
+                <div class="time-text">负责公司企化、品宣等各项活动的照片、视频拍摄及后期制作。参与策划和组织企业内部活动。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 关于我：已去掉个人形象图片，只保留文字+核心技能 -->
+    <section class="section" id="about">
+        <div class="section-head">
+            <h2>关于我</h2>
+            <p>旅行、摄影、户外爱好者，多平台签约摄影师&B站长视频旅行博主</p>
+        </div>
+        <div class="about-content">
+            <p>兼具「叙事策划+拍摄制作+数据运营」全链路能力的编导，擅长数码/旅行/生活类内容的选题策划、文案&脚本撰写与拍
+摄统筹，具备爆款内容打造与账号从0到1搭建经验。能独立完成从创意到上线的内容项目全流程。</p>
+
+            <div class="skill-section">
+                <h4>核心技能</h4>
+                <div class="skill-tags">
+                    <span>- 编导创作：选题策划、脚本撰写、分镜设计、拍摄统筹、叙事节奏把控</span>
+                    <span>- 拍摄后期：相机/稳定器/无人机操作，Pr、达芬奇、剪映、Ps等软件使用</span>
+                    <span>- 平台运营：B站/抖音/小红书/视频号内容规则与运营策略，熟悉海外平台</span>
+                    <span>- AIGC应用：ChatGPT、Midjourney、Gemini、豆包等工具辅助内容创作</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        © 2026 叶剑鸣 | 作品集
+    </footer>
+
+    <script>
+        // 导航磨砂滚动
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if(window.scrollY > 100){
+                navbar.classList.add('active');
+            }else{
+                navbar.classList.remove('active');
+            }
+        });
+
+        // 工作经历滚动渐入
+        const timelineItems = document.querySelectorAll('.timeline-item');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(item => {
+                if(item.isIntersecting){
+                    item.target.classList.add('show');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        timelineItems.forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>
